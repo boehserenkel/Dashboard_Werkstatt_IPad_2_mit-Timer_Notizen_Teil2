@@ -48,19 +48,18 @@
     font-family: monospace;
   }
   .calendar {
-    width: 320px;            /* Etwas größer als vorher */
+    width: 320px;
     margin: 10px auto 20px auto;
     background: rgba(255,255,255,0.85);
-    padding: 12px 8px;       /* Vertikal 12px, horizontal 8px -> schmäler */
+    padding: 12px 8px;
     border-radius: 10px;
     font-family: monospace;
     white-space: pre;
     line-height: 1.4;
     box-sizing: border-box;
   }
-  /* Notizbereich Styles */
   #notesContainer {
-    width: 280px;           /* Kleiner gemacht */
+    width: 280px;
     margin: 20px auto 30px auto;
     background: rgba(255,255,255,0.85);
     padding: 10px 8px;
@@ -77,7 +76,7 @@
   }
   #notes {
     width: 100%;
-    height: 120px;            /* Etwas kleiner */
+    height: 120px;
     font-family: monospace;
     font-size: 14px;
     padding: 8px;
@@ -117,7 +116,6 @@
 
 <div class="calendar" id="calendarDisplay"></div>
 
-<!-- Notizbereich -->
 <div id="notesContainer">
   <h2>Notizen</h2>
   <textarea id="notes" placeholder="Hier deine Notizen eingeben..."></textarea>
@@ -136,7 +134,6 @@
   function drawClock() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Uhrblatt
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius * 0.9, 0, 2 * Math.PI);
     ctx.fillStyle = 'white';
@@ -145,7 +142,6 @@
     ctx.strokeStyle = '#333';
     ctx.stroke();
 
-    // Mittelpunkt
     ctx.beginPath();
     ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
     ctx.fillStyle = '#333';
@@ -175,19 +171,15 @@
     var minute = now.getMinutes();
     var second = now.getSeconds();
 
-    // Stundenzeiger
     var hourAngle = ((hour + minute / 60) * Math.PI / 6) - Math.PI/2;
     drawHand(hourAngle, radius * 0.5, 8);
 
-    // Minutenzeiger
     var minuteAngle = (minute * Math.PI / 30) - Math.PI/2;
     drawHand(minuteAngle, radius * 0.7, 6);
 
-    // Sekundenzeiger (rot)
     var secondAngle = (second * Math.PI / 30) - Math.PI/2;
     drawHand(secondAngle, radius * 0.85, 2, 'red');
 
-    // Digitale Uhr aktualisieren
     var digital = document.getElementById('digitalClock');
     digital.textContent =
       (now.getHours() < 10 ? '0' + now.getHours() : now.getHours()) + ':' +
@@ -208,7 +200,6 @@
   setInterval(drawClock, 1000);
   drawClock();
 
-  // Timer
   var countdown;
   var isTimerRunning = false;
 
@@ -246,7 +237,7 @@
     return time < 10 ? '0' + time : time;
   }
 
-  // Kalender mit aktuellem Tag
+  // Überarbeiteter Kalender
   function renderCalendar() {
     var calendar = document.getElementById('calendarDisplay');
     var now = new Date();
@@ -264,7 +255,6 @@
     var weeks = [];
     var week = [];
 
-    // Startoffset für Montag
     var dayOffset = (startWeekday === 0) ? 6 : startWeekday - 1;
 
     for(var i=0; i<dayOffset; i++) {
@@ -273,10 +263,13 @@
 
     for(var d=1; d<=daysInMonth; d++) {
       var dayStr = (d < 10 ? ' ' + d : d.toString());
+
       if(d === today) {
-        dayStr = '[' + (d < 10 ? ' ' + d : d) + ']';
+        dayStr = `<span style="background-color:red;color:white;border-radius:4px;padding:1px 4px;">${dayStr}</span>`;
       }
+
       week.push(dayStr);
+
       if(week.length === 7) {
         weeks.push(week);
         week = [];
@@ -290,17 +283,17 @@
       weeks.push(week);
     }
 
-    var calendarText = weekHeader.join(' ') + '\n';
+    var calendarHTML = `<div style="font-weight:bold;">${weekHeader.join(' ')}</div>\n`;
     weeks.forEach(function(w) {
-      calendarText += w.join(' ') + '\n';
+      calendarHTML += '<div>' + w.join(' ') + '</div>\n';
     });
 
-    calendar.textContent = calendarText;
+    calendar.innerHTML = calendarHTML;
   }
 
   renderCalendar();
+  setInterval(renderCalendar, 60000); // alle 60 Sekunden aktualisieren
 
-  // Notizen laden und speichern
   var notesTextarea = document.getElementById('notes');
   var saveBtn = document.getElementById('saveNotesBtn');
 
@@ -317,10 +310,8 @@
   });
 
   loadNotes();
-
 })();
 </script>
 
 </body>
 </html>
-
